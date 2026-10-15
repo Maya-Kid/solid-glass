@@ -61,6 +61,9 @@ function TurnStatus({
   const [open, setOpen] = React.useState(false)
   const elapsed = useElapsed(since)
   const opens = Boolean(children)
+  // The glyph is decorative. Even without visible words, expose the activity
+  // and keep the disclosure's name independent of the clock and token count.
+  const activityLabel = label?.trim() || activity
 
   const line = (
     <>
@@ -83,11 +86,12 @@ function TurnStatus({
     <div data-slot="turn-status" className={cn("flex flex-col gap-1.5", className)}>
       {/* Announce the activity separately: the line can be a button, and its
           clock and animated count should not keep repeating the status. */}
-      <span role="status" className="sr-only">{label}</span>
+      <span role="status" className="sr-only">{activityLabel}</span>
       <div className="flex h-5 max-w-full items-center gap-1.5">
         {opens ? (
           <button
             type="button"
+            aria-label={activityLabel}
             aria-expanded={open}
             onClick={() => setOpen((value) => !value)}
             className="flex w-fit max-w-full items-center gap-2 text-[12.5px] text-muted-foreground transition-colors outline-none hover:text-foreground focus-visible:text-foreground"
