@@ -85,6 +85,7 @@ const inlineCode = "relative rounded-md bg-muted px-[0.3rem] py-[0.2rem] font-mo
 const linkClass = "font-medium underline underline-offset-4"
 
 function Prose({ children }: { children: string }) {
+  const { search } = useLocation()
   return (
     <Markdown
       remarkPlugins={[remarkGfm]}
@@ -93,7 +94,7 @@ function Prose({ children }: { children: string }) {
         a: ({ href = "", children: label }) => {
           const target = resolveHref(href)
           return target.to ? (
-            <Link to={target.to} className={linkClass}>
+            <Link to={target.to.startsWith("#") ? { search, hash: target.to } : target.to} className={linkClass}>
               {label}
             </Link>
           ) : (
