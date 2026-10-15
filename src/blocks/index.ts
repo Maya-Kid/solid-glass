@@ -61,7 +61,10 @@ function filesOf(name: string, own?: boolean) {
   // Previews use the site's block folders; copied files live at the paths shown above.
   return files.map((file) => ({
     ...file,
-    source: file.source
+    // Upstream preview metadata is not a supported Next App Router page export.
+    source: (file.path === "page.tsx"
+      ? file.source.replace(/^export const (?:iframeHeight|description) = [^\n]*\n\n?/gm, "")
+      : file.source)
       .replaceAll(`@/blocks/${name}/`, "@/")
       .replaceAll("@/blocks/shared/", "@/shared/"),
   }));
