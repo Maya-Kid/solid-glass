@@ -40,6 +40,8 @@ import { TurnStatus } from "@/components/ui/turn-status"
 ## With steps
 
 Given children, the line is a button and opens to show them: the calls of the step in hand.
+The activity label is announced by a separate status region, so the button keeps
+its native role and updates to the clock and token count do not repeat the announcement.
 
 <ComponentPreview name="turn-status-steps" align="start" />
 
