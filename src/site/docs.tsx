@@ -359,14 +359,21 @@ function DocShell({ title, description, url, toc, children }: { title: string; d
 
 export function DocPage({ section }: { section: "docs" | "components" }) {
   const { slug = "introduction" } = useParams()
-  const { hash } = useLocation()
+  const { hash, key } = useLocation()
   const page = pages.find((entry) => entry.slug === slug && (section === "docs" ? entry.section === "docs" : entry.section !== "docs"))
   const manager = React.useState<Manager>("pnpm")
 
   // A link to a heading lands on it once the page is there.
   React.useEffect(() => {
-    if (hash) document.getElementById(decodeURIComponent(hash.slice(1)))?.scrollIntoView()
-  }, [hash, page])
+    if (!hash) return
+    let id = hash.slice(1)
+    try {
+      id = decodeURIComponent(id)
+    } catch {
+      // A malformed escape can still be a literal heading ID.
+    }
+    document.getElementById(id)?.scrollIntoView()
+  }, [hash, key, page])
 
   if (!page) return <Navigate to="/docs/components" replace />
   return (
