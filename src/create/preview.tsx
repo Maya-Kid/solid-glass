@@ -70,10 +70,15 @@ export function PreviewDocument() {
     "--create-heading": fontFamily(options.heading),
     "--create-accent": wash(options, theme),
   }
+  // An unset custom property must stay absent so var() can use its fallback;
+  // the literal word "undefined" would instead invalidate the resulting colour.
+  const declarations = Object.entries(variables)
+    .filter(([, value]) => value !== undefined)
+    .map(([key, value]) => `${key}: ${value};`).join(" ")
 
   return (
     <CreateContext.Provider value={options}>
-      <style>{`:root { ${Object.entries(variables).map(([key, value]) => `${key}: ${value};`).join(" ")} } body { font-family: ${fontFamily(options.font)}; }`}</style>
+      <style>{`:root { ${declarations} } body { font-family: ${fontFamily(options.font)}; }`}</style>
       <div data-create-preview>{view === "01" ? <Blocks /> : <Wall full />}</div>
     </CreateContext.Provider>
   )
