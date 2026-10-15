@@ -1,11 +1,39 @@
 import { cn } from "@/lib/utils"
 
+/** File headers and changed text can have the same prefix, even "+++ ". */
+function patchLines(patch: string): string[] {
+  const lines: string[] = []
+  let inHunk = false
+  let oldLines = 0
+  let newLines = 0
+  for (const line of patch.replace(/\n$/, "").split("\n")) {
+    if (line.startsWith("diff --git ")) inHunk = false
+    const hunk = /^@@ -\d+(?:,(\d+))? \+\d+(?:,(\d+))? @@/.exec(line)
+    if (hunk) {
+      oldLines = Number(hunk[1] ?? 1)
+      newLines = Number(hunk[2] ?? 1)
+      inHunk = oldLines > 0 || newLines > 0
+    } else if (line.startsWith("@@")) {
+      // Also accept abbreviated hunks, as used in compact tool output.
+      inHunk = true
+      oldLines = newLines = Infinity
+    } else if (!inHunk && /^(---|\+\+\+) /.test(line)) {
+      continue
+    } else if (inHunk) {
+      if (line.startsWith("-") || line.startsWith(" ")) oldLines--
+      if (line.startsWith("+") || line.startsWith(" ")) newLines--
+      if (oldLines <= 0 && newLines <= 0) inHunk = false
+    }
+    lines.push(line)
+  }
+  return lines
+}
+
 /** Lines added and removed by a unified patch, headers aside. */
 function patchStats(patch: string): { added: number; removed: number } {
   let added = 0
   let removed = 0
-  for (const line of patch.split("\n")) {
-    if (line.startsWith("+++") || line.startsWith("---")) continue
+  for (const line of patchLines(patch)) {
     if (line.startsWith("+")) added++
     else if (line.startsWith("-")) removed++
   }
@@ -23,10 +51,7 @@ function DiffStats({ added, removed, className }: { added: number; removed: numb
 
 /** A patch as a diff: hunks with added and removed lines coloured, headers dropped. */
 function DiffView({ patch, className }: { patch: string; className?: string }) {
-  const lines = patch
-    .replace(/\n$/, "")
-    .split("\n")
-    .filter((line) => !line.startsWith("+++") && !line.startsWith("---"))
+  const lines = patchLines(patch)
   return (
     <div
       data-slot="diff-view"
