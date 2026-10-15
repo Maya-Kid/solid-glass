@@ -31,7 +31,7 @@ Then import it after Tailwind and shadcn's stylesheet, and delete the `:root` an
 @import "./solid-glass.css";
 ```
 
-The import above assumes the installed stylesheet is beside `src/index.css`. The command places it in your project's `src` directory when there is one, or at the project root otherwise. If your main stylesheet lives elsewhere, adjust the relative import to that installed file.
+The import above assumes the installed stylesheet is beside `src/index.css`. Check the path printed by the command and adjust the relative import if your main stylesheet lives elsewhere.
 
 Dark is the material as designed. It follows the `dark` class on `<html>`. A project made by `shadcn init` has a `ThemeProvider` that sets that class from the system's setting; to start in dark whatever the system says:
 
