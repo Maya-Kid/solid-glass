@@ -4,11 +4,12 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Spinner } from "@/components/ui/spinner"
 import { CodeBlock } from "@/site/code"
+import componentFiles from "@/registry-files.json"
 
 // Every example, loaded when its preview is first shown, and its source as text.
 const modules = import.meta.glob<{ default?: React.ComponentType } & Record<string, unknown>>("/src/examples/*.tsx")
 const sources = import.meta.glob<string>("/src/examples/*.tsx", { query: "?raw", import: "default" })
-const uiSources = import.meta.glob<string>("/src/components/ui/*.tsx", { query: "?raw", import: "default" })
+const uiSources = import.meta.glob<string>(["/src/components/ui/*.tsx", "/src/components/ui/*.ts"], { query: "?raw", import: "default" })
 
 const lazies = new Map<string, React.LazyExoticComponent<React.ComponentType>>()
 function exampleOf(name: string) {
@@ -102,9 +103,14 @@ export function ComponentPreview({
   )
 }
 
-/** A component's own source, as it is installed. */
-export function ComponentSource({ name, title }: { name: string; title?: string }) {
-  const source = useSource(uiSources[`/src/components/ui/${name}.tsx`])
+function ComponentSourceFile({ file, title }: { file: string; title?: string }) {
+  const source = useSource(uiSources[`/src/components/ui/${file}`])
   if (!source) return null
-  return <CodeBlock code={source} title={title ?? `components/ui/${name}.tsx`} />
+  return <CodeBlock code={source} title={title ?? `components/ui/${file}`} />
+}
+
+/** Every file in the component's registry item, for installation by hand. */
+export function ComponentSource({ name, title }: { name: string; title?: string }) {
+  const files = (componentFiles as Record<string, string[]>)[name] ?? [`${name}.tsx`]
+  return <>{files.map((file, index) => <ComponentSourceFile key={file} file={file} title={index === 0 ? title : undefined} />)}</>
 }

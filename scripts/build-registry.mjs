@@ -24,6 +24,8 @@ import { fileURLToPath } from "node:url"
 const root = join(dirname(fileURLToPath(import.meta.url)), "..")
 const out = join(root, "public/r")
 const read = (path) => readFileSync(join(root, path), "utf8")
+// The same file groups drive the registry and the documentation's manual-copy source panels.
+const componentFiles = JSON.parse(read("src/registry-files.json"))
 // Where the site is served from, and the repository on GitHub.
 const origin = (process.env.SOLID_GLASS_ORIGIN ?? "https://deeplethe.github.io/solid-glass").replace(/\/$/, "")
 const repo = "deeplethe/solid-glass"
@@ -33,12 +35,13 @@ const own = readdirSync(join(root, "content/solid"))
   .sort()
 
 /** What a file needs: the packages it imports, and the components, its own by address and shadcn/ui's by name. */
-function needs(content) {
+function needs(content, included = []) {
   const packages = new Set()
   const others = new Set()
   for (const [, source] of content.matchAll(/from "([^"]+)"/g)) {
     if (source === "react" || source === "@/lib/utils") continue
     const used = source.match(/^@\/components\/ui\/(.+)$/)?.[1]
+    if (included.includes(used)) continue
     if (used) others.add(own.includes(used) ? `${repo}/${used}` : used)
     else packages.add(source.split("/").slice(0, source.startsWith("@") ? 2 : 1).join("/"))
   }
@@ -63,25 +66,18 @@ const blocks = readdirSync(join(root, "src/blocks"))
   })
 
 const components = own.map((name) => {
-  const content = read(`src/components/ui/${name}.tsx`)
+  // A universal entry can keep pure helpers available to servers while its UI has a client boundary.
+  const names = componentFiles[name] ?? [`${name}.tsx`]
+  const files = names.map((file) => ({ path: `src/components/ui/${file}`, type: "registry:ui" }))
+  const content = files.map((file) => read(file.path)).join("\n")
   const front = read(`content/solid/${name}.mdx`)
-  const packages = new Set()
-  const others = new Set()
-  for (const [, source] of content.matchAll(/from "([^"]+)"/g)) {
-    if (source === "react" || source === "@/lib/utils") continue
-    const used = source.match(/^@\/components\/ui\/(.+)$/)?.[1]
-    // One of Solid Glass's own is named by its GitHub address; one of shadcn/ui's by its name.
-    if (used) others.add(own.includes(used) ? `${repo}/${used}` : used)
-    else packages.add(source.split("/").slice(0, source.startsWith("@") ? 2 : 1).join("/"))
-  }
   return {
     name,
     type: "registry:ui",
     title: front.match(/^title:\s*(.*)$/m)?.[1],
     description: front.match(/^description:\s*(.*)$/m)?.[1],
-    dependencies: [...packages].sort(),
-    registryDependencies: [...others].sort(),
-    files: [{ path: `src/components/ui/${name}.tsx`, type: "registry:ui" }],
+    ...needs(content, names.map((file) => file.replace(/\.tsx?$/, ""))),
+    files,
   }
 })
 

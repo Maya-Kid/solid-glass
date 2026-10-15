@@ -32,6 +32,8 @@ import { ContextRing } from "@/components/ui/context-ring"
 <ContextRing used={86300} window={200000} />
 ```
 
+The exported `compactTokens(count)` helper can also be called in a server component. Keep all three installed files together: `context-ring-client.tsx` contains the interactive ring, and `context-ring-helpers.ts` contains the pure formatter.
+
 ## Colour
 
 Blue while there is room, which is nearly always. Amber from 70%, and the colour of failure from 90%: nearly full is worth a second look.

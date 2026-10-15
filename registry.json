@@ -64,6 +64,14 @@
         {
           "path": "src/components/ui/context-ring.tsx",
           "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/context-ring-client.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/context-ring-helpers.ts",
+          "type": "registry:ui"
         }
       ]
     },
@@ -205,6 +213,14 @@
       "files": [
         {
           "path": "src/components/ui/turn-status.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/turn-status-client.tsx",
+          "type": "registry:ui"
+        },
+        {
+          "path": "src/components/ui/turn-status-helpers.ts",
           "type": "registry:ui"
         }
       ]
