@@ -38,3 +38,36 @@ test("missing arrays, dynamic metadata and duplicate names fail with a useful er
     block({name: "x", title: "X", description: "Two"}),
   ]`), /Duplicate block metadata: x/)
 })
+
+test("spreads and computed properties cannot silently replace literal metadata", () => {
+  for (const override of ["...extra", '[key]: "Other"', '...{ description: "Other" }']) {
+    assert.throws(() => blockMetadata(`const blocks = [block({
+      name: "x", title: "X", description: "Original", ${override},
+    })]`), /static block metadata properties at line 1/)
+  }
+})
+
+test("repeated metadata keys cannot make the registry differ from the runtime block", () => {
+  for (const key of ["name", "title", "description"]) {
+    assert.throws(() => blockMetadata(`const blocks = [block({
+      name: "x", title: "X", description: "Original", "${key}": "Replacement",
+    })]`), new RegExp(`Duplicate block metadata property: ${key}`))
+  }
+  assert.throws(() => blockMetadata(`const blocks = [block({
+    name: "x", title: "X", description: "Original", ["description"]: "Replacement",
+  })]`), /Duplicate block metadata property: description at line 1/)
+})
+
+test("provably unrelated computed keys and literal spreads remain supported", () => {
+  assert.deepEqual([...blockMetadata(`const blocks = [block({
+    name: "x", title: "X", description: "Original",
+    ["other"]: dynamic, ...{ another: dynamic, ...{ final: dynamic } },
+  })]`)], [["x", { title: "X", description: "Original" }]])
+})
+
+test("invalid TypeScript and nonliteral metadata members are rejected", () => {
+  assert.throws(() => blockMetadata("const blocks = [block({"), /Invalid TypeScript/)
+  for (const description of ['get description() { return "Other" }', "description"]) {
+    assert.throws(() => blockMetadata(`const blocks = [block({name: "x", title: "X", ${description}})]`), /literal description/)
+  }
+})
