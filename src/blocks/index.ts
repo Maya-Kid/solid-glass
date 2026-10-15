@@ -58,7 +58,13 @@ function filesOf(name: string, own?: boolean) {
       path: "shared/overview.tsx",
       source: sources["/src/blocks/shared/overview.tsx"],
     });
-  return files;
+  // Previews use the site's block folders; copied files live at the paths shown above.
+  return files.map((file) => ({
+    ...file,
+    source: file.source
+      .replaceAll(`@/blocks/${name}/`, "@/")
+      .replaceAll("@/blocks/shared/", "@/shared/"),
+  }));
 }
 
 const OVERVIEW = "@/blocks/shared/overview";
