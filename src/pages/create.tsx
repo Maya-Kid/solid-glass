@@ -4,9 +4,10 @@ import { useSearchParams } from "react-router-dom"
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import Blocks from "@/create/blocks"
 import { Customizer } from "@/create/customizer"
-import { decode, encode, DEFAULTS, type Options } from "@/create/options"
-import { PreviewFrame } from "@/create/preview"
+import { CreateContext, decode, encode, fontFamily, loadFont, overrides, shared, theme as themed, wash, DEFAULTS, type Options } from "@/create/options"
+import { Wall } from "@/home/wall"
 import { SolidGlassMark } from "@/site/logo"
 import { useTheme } from "@/site/theme"
 
@@ -83,12 +84,27 @@ export default function Create() {
     )
   }
 
+  // a face that is not the site's own is fetched when a look first asks for it
+  React.useEffect(() => {
+    loadFont(options.font)
+    loadFont(options.heading)
+  }, [options.font, options.heading])
+
+  const style = {
+    ...shared(options),
+    ...overrides(options, theme),
+    ...themed(options),
+    fontFamily: fontFamily(options.font),
+    "--create-heading": fontFamily(options.heading),
+    "--create-accent": wash(options, theme),
+  } as React.CSSProperties
+
   return (
-    <>
+    <CreateContext.Provider value={options}>
       <div className="container-wrapper flex h-[calc(100svh-var(--header-height))] min-h-0 flex-col gap-3 px-6 pb-6 md:flex-row md:gap-5">
         <Customizer options={options} onChange={change} mode={theme} onMode={setTheme} className="order-last md:order-first" />
-        <div className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-2xl border bg-background text-foreground">
-          <PreviewFrame options={options} mode={theme} view={view} />
+        <div data-create-preview style={style} className="relative min-h-0 min-w-0 flex-1 overflow-hidden rounded-2xl border bg-background text-foreground">
+          <div className="no-scrollbar h-full overflow-y-auto">{view === "01" ? <Blocks /> : <Wall full />}</div>
           <div className="glass-panel absolute right-3 bottom-3 z-10 flex gap-0.5 rounded-lg p-0.5 font-mono text-xs">
             {VIEWS.map((name) => (
               <button
@@ -105,6 +121,6 @@ export default function Create() {
         </div>
       </div>
       <Welcome />
-    </>
+    </CreateContext.Provider>
   )
 }

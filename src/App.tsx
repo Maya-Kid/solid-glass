@@ -13,7 +13,6 @@ import { SiteHeader } from "@/site/site-header"
 
 // The preview on the Create page is a few dozen cards and every icon by name: fetched when the page is.
 const Create = React.lazy(() => import("@/pages/create"))
-const PreviewDocument = React.lazy(() => import("@/create/preview").then((page) => ({ default: page.PreviewDocument })))
 // The blocks carry their own source to show it: fetched with the Blocks page, not with every page.
 const Blocks = React.lazy(() => import("@/pages/blocks").then((page) => ({ default: page.Blocks })))
 const BlockView = React.lazy(() => import("@/pages/blocks").then((page) => ({ default: page.BlockView })))
@@ -31,15 +30,6 @@ export function App() {
   const { pathname } = useLocation()
   // The README's banner is a picture of the material and nothing else: no header, no footer behind it.
   if (import.meta.env.DEV && pathname === "/dev/banner") return <DevBanner />
-  if (pathname === "/create/preview") {
-    return (
-      <TooltipProvider>
-        <React.Suspense fallback={null}>
-          <PreviewDocument />
-        </React.Suspense>
-      </TooltipProvider>
-    )
-  }
   // A block by itself, in a window of its own: no header, no footer round it.
   if (pathname.startsWith("/view/")) {
     return (
