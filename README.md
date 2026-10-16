@@ -142,42 +142,10 @@ per file, whatever is added to the link, and a browser keeps what it fetched fro
 `?q=button,card` to show some of them, `?theme=light`, `?hover=<selector>` to show what matches as
 if the pointer were on it, and `?click=<selector>` to press something and look at what it opens.
 
-### Self-host the site and registry
-
-Both settings are read at build time:
-
-| Setting | What it controls | Default |
-|---|---|---|
-| `SOLID_GLASS_ORIGIN` | The full site URL, including a deployment subpath; used for the served registry's own dependencies | `https://deeplethe.github.io/solid-glass` |
-| `SOLID_GLASS_BASE` | Vite's asset and router base path | `/` |
-
-For a site at the root of its domain:
-
-```bash
-SOLID_GLASS_ORIGIN=https://design.example.com \
-SOLID_GLASS_BASE=/ \
-npm run build
-```
-
-For a site under a subpath:
-
-```bash
-SOLID_GLASS_ORIGIN=https://example.com/design \
-SOLID_GLASS_BASE=/design/ \
-npm run build
-```
-
-Use the same deployment location for both values: a full URL without a trailing slash for
-`ORIGIN`, and a path with leading and trailing slashes for `BASE`. Serve `dist/` at that location,
-with a fallback to its `index.html` for client routes such as `/docs/installation`. GitHub Pages
-sets both values explicitly in its workflow; the defaults alone are not its configuration.
-
-Rebuild when the URL or subpath changes. Setting environment variables on a server that serves
-an existing `dist/` does not rewrite its assets or registry links. A self-hosted installation uses
-`https://example.com/design/r/<item>.json`; `deeplethe/solid-glass/<item>` still reads from GitHub.
-Stock components and npm packages still need their own reachable sources. See the
+`SOLID_GLASS_ORIGIN` defaults to `https://deeplethe.github.io/solid-glass` and
+`SOLID_GLASS_BASE` to `/`; the Pages workflow sets both explicitly. See the
 [installation page](https://deeplethe.github.io/solid-glass/docs/installation#self-hosted-registries)
-for the dependency boundary.
+for self-hosting.
 
 ## Add a component of Solid Glass's own
 
