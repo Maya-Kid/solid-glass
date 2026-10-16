@@ -229,7 +229,7 @@
       "name": "agent-workspace",
       "type": "registry:block",
       "title": "Agent workspace",
-      "description": "A dashboard with sidebar, charts and data table",
+      "description": "A workspace where an agent works: sessions, the thread, files and background tasks",
       "dependencies": [
         "lucide-react"
       ],

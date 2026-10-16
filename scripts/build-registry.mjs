@@ -20,6 +20,7 @@ import { execFileSync } from "node:child_process"
 import { copyFileSync, readdirSync, readFileSync, rmSync, writeFileSync } from "node:fs"
 import { dirname, join } from "node:path"
 import { fileURLToPath } from "node:url"
+import { blockMetadata } from "./block-metadata.mjs"
 
 const root = join(dirname(fileURLToPath(import.meta.url)), "..")
 const out = join(root, "public/r")
@@ -49,17 +50,18 @@ function needs(content, included = []) {
 }
 
 // The blocks: whole screens, one file each. Their titles and descriptions are in src/blocks/index.ts.
-const blockIndex = read("src/blocks/index.ts")
+const blockIndex = blockMetadata(read("src/blocks/index.ts"))
 const blocks = readdirSync(join(root, "src/blocks"))
   .filter((file) => file.endsWith(".tsx"))
   .map((file) => {
     const name = file.replace(/\.tsx$/, "")
-    const entry = blockIndex.slice(blockIndex.indexOf(`name: "${name}"`))
+    const entry = blockIndex.get(name)
+    if (!entry) throw new Error(`Missing block metadata: ${name}`)
     return {
       name,
       type: "registry:block",
-      title: entry.match(/title: "([^"]*)"/)?.[1],
-      description: entry.match(/description: "([^"]*)"/)?.[1],
+      title: entry.title,
+      description: entry.description,
       ...needs(read(`src/blocks/${file}`)),
       files: [{ path: `src/blocks/${file}`, type: "registry:component" }],
     }
