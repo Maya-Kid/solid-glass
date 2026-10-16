@@ -32,6 +32,7 @@ function Composer({
   onStop,
   running = false,
   placeholder,
+  textareaProps,
   leading,
   tags,
   above,
@@ -48,6 +49,8 @@ function Composer({
   onStop?: () => void
   running?: boolean
   placeholder?: string
+  /** Names and describes the input; other HTML attributes belong to the wrapper. */
+  textareaProps?: Pick<React.ComponentProps<"textarea">, "id" | "aria-label" | "aria-labelledby" | "aria-describedby">
   leading?: React.ReactNode
   tags?: React.ReactNode
   /** Stands above the line of text: pictures going with the message. */
@@ -73,6 +76,20 @@ function Composer({
     el.style.height = `${el.scrollHeight}px`
   }, [])
   React.useLayoutEffect(resize, [value, resize])
+  React.useLayoutEffect(() => {
+    const el = textarea.current
+    if (!el || typeof ResizeObserver === "undefined") return
+    // Side panels and attachments change wrapping without changing the text.
+    // Observe width alone so writing the new height cannot feed back into it.
+    let width = -1
+    const observer = new ResizeObserver(([entry]) => {
+      if (entry.contentRect.width === width) return
+      width = entry.contentRect.width
+      resize()
+    })
+    observer.observe(el)
+    return () => observer.disconnect()
+  }, [resize])
 
   const submit = () => {
     if (!ready) return
@@ -101,6 +118,7 @@ function Composer({
             mark is never left on a line of its own. */}
         <div className={cn("flex min-w-48 flex-1 items-end gap-1", Boolean(tags) && "ml-1.5", !leading && !tags && "pl-1.5")}>
           <textarea
+            {...textareaProps}
             ref={textarea}
             rows={1}
             value={value}

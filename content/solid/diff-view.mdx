@@ -27,3 +27,7 @@ import { DiffView } from "@/components/ui/diff-view"
 ```tsx
 <DiffView patch={patch} />
 ```
+
+Pass a unified diff with complete hunk ranges. Compact or truncated hunks are
+also supported; keep the `diff --git` separators when combining them across
+multiple files so file headers can be distinguished from changed text.

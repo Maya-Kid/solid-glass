@@ -564,6 +564,7 @@ export default function AgentWorkspace() {
         <div className="flex shrink-0 justify-center px-4 pb-4 md:px-6">
           <div className="w-full max-w-[600px]">
             <Composer
+              textareaProps={{ "aria-label": "Message" }}
               value={value}
               onValueChange={setValue}
               onSubmit={send}

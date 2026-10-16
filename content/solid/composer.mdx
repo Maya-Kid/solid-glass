@@ -31,8 +31,18 @@ import { Composer } from "@/components/ui/composer"
 ```tsx
 const [text, setText] = React.useState("")
 
-<Composer value={text} onValueChange={setText} onSubmit={send} />
+<Composer
+  value={text}
+  onValueChange={setText}
+  onSubmit={send}
+  textareaProps={{ "aria-label": "Message" }}
+/>
 ```
+
+`textareaProps` names and describes the input itself. It accepts `id`, `aria-label`,
+`aria-labelledby`, and `aria-describedby`; use its `id` with an external label's
+`htmlFor`. Other HTML attributes, including a top-level `id` or `aria-label`,
+continue to apply to the outer wrapper.
 
 ## While a turn runs
 
@@ -52,6 +62,7 @@ The send mark has no block behind it in any state: its brightness says what it w
 | `onValueChange` | `(value: string) => void` | - |
 | `onSubmit` | `(value: string) => void` | - |
 | `onStop` | `() => void` | - |
+| `textareaProps` | `Pick<ComponentProps<"textarea">, "id" \| "aria-label" \| "aria-labelledby" \| "aria-describedby">` | - |
 | `running` | `boolean` | `false` |
 | `leading` | `ReactNode` | - |
 | `tags` | `ReactNode` | - |

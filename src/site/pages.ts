@@ -47,7 +47,8 @@ export const ordered: { title: string; url: string }[] = [
  * other page of theirs stays theirs.
  */
 export function resolveHref(href: string): { to?: string; href?: string } {
-  if (/^([a-z]+:|#)/i.test(href)) return { href }
+  if (href.startsWith("#")) return { to: href }
+  if (/^[a-z]+:/i.test(href)) return { href }
   const [path, hash = ""] = href.split("#")
   const component = path.match(/^\/docs\/components\/(?:base\/|radix\/)?([a-z0-9-]+)\/?$/)?.[1]
   const tail = hash ? `#${hash}` : ""
