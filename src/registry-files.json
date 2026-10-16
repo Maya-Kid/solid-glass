@@ -1,4 +1,0 @@
-{
-  "turn-status": ["turn-status.tsx", "turn-status-client.tsx", "turn-status-helpers.ts"],
-  "context-ring": ["context-ring.tsx", "context-ring-client.tsx", "context-ring-helpers.ts"]
-}

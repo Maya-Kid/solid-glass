@@ -37,15 +37,9 @@ import { TurnStatus } from "@/components/ui/turn-status"
 />
 ```
 
-The exported `formatDuration(seconds)` helper can also be called in a server component. Keep all three installed files together: `turn-status-client.tsx` contains the interactive implementation and the `useElapsed` hook, and `turn-status-helpers.ts` contains the pure formatter.
-
 ## With steps
 
 Given children, the line is a button and opens to show them: the calls of the step in hand.
-The activity label is announced by a separate status region, so the button keeps
-its native role and updates to the clock and token count do not repeat the announcement.
-When `label` is omitted, the activity name supplies the announcement and button
-name without adding visible text. Pass `label` to customize or translate it.
 
 <ComponentPreview name="turn-status-steps" align="start" />
 
