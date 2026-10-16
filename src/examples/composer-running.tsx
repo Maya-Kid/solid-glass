@@ -8,6 +8,7 @@ export default function ComposerRunning() {
   const [text, setText] = React.useState("")
   return (
     <Composer
+      textareaProps={{ "aria-label": "Next message" }}
       className="w-full max-w-lg"
       value={text}
       onValueChange={setText}

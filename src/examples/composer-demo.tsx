@@ -35,6 +35,7 @@ export default function ComposerDemo() {
   return (
     <div className="w-full max-w-lg">
       <Composer
+        textareaProps={{ "aria-label": "Message" }}
         value={text}
         onValueChange={(value) => {
           setText(value)

@@ -243,14 +243,19 @@ export function StatusGlyph({
   className?: string
 }) {
   const svg = React.useRef<SVGSVGElement>(null)
-  // Read inside the frame loop, so a change of figure does not restart it.
+  // Keep the clock and transition state when the figure changes.
   const wanted = React.useRef<Figure>(figure ?? FIGURES[activity])
+  const refreshAnimation = React.useRef<(() => void) | null>(null)
   React.useEffect(() => {
     wanted.current = figure ?? FIGURES[activity]
+    refreshAnimation.current?.()
   }, [activity, figure])
 
   React.useEffect(() => {
-    const circles = [...(svg.current?.querySelectorAll("circle") ?? [])]
+    const element = svg.current
+    if (!element) return
+    const circles = [...element.querySelectorAll("circle")]
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)")
     const draw = (dots: Dot[]) =>
       dots.forEach((dot, i) => {
         const circle = circles[i]
@@ -261,19 +266,15 @@ export function StatusGlyph({
         circle.setAttribute("opacity", Math.max(0, Math.min(1, dot.o)).toFixed(2))
       })
 
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const still = window.setInterval(() => draw(wanted.current(0)), 250)
-      draw(wanted.current(0))
-      return () => window.clearInterval(still)
-    }
-
+    let visible = false
+    let frame: number | null = null
     let showing = wanted.current
     // What the points were doing when the figure last changed, and when.
     let left: Dot[] | null = null
     let changedAt = 0
     let last = showing(0)
     const began = performance.now()
-    let frame = requestAnimationFrame(function step(now) {
+    function step(now: number) {
       if (wanted.current !== showing) {
         showing = wanted.current
         left = last
@@ -288,8 +289,44 @@ export function StatusGlyph({
       last = dots
       draw(dots)
       frame = requestAnimationFrame(step)
+    }
+
+    function refresh() {
+      const shouldAnimate = visible && !document.hidden && !reducedMotion.matches
+      if (shouldAnimate) {
+        if (frame === null) frame = requestAnimationFrame(step)
+        return
+      }
+
+      if (frame !== null) cancelAnimationFrame(frame)
+      frame = null
+      if (!visible || document.hidden) return
+
+      showing = wanted.current
+      left = null
+      last = showing(0)
+      draw(last)
+    }
+
+    // Offscreen glyphs keep their clock, but do not schedule frames.
+    const observer = new IntersectionObserver((entries) => {
+      visible = entries[entries.length - 1].isIntersecting
+      refresh()
     })
-    return () => cancelAnimationFrame(frame)
+    observer.observe(element)
+    reducedMotion.addEventListener("change", refresh)
+    document.addEventListener("visibilitychange", refresh)
+    refreshAnimation.current = refresh
+
+    return () => {
+      if (frame !== null) cancelAnimationFrame(frame)
+      observer.disconnect()
+      // Discard queued notifications so an unmounted glyph cannot restart.
+      observer.takeRecords()
+      reducedMotion.removeEventListener("change", refresh)
+      document.removeEventListener("visibilitychange", refresh)
+      refreshAnimation.current = null
+    }
   }, [])
 
   return (
