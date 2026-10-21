@@ -56,7 +56,7 @@ function Tag({
         />
       )}
       <span className={cn("relative flex", error ? "text-destructive" : "text-muted-foreground")}>
-        {error ? <X /> : going ? <Loader2 className="animate-spin" /> : icon}
+        {error ? <X /> : going ? <Loader2 className="animate-spin motion-reduce:animate-none" /> : icon}
       </span>
       <span className="relative truncate">{children}</span>
       {/* As wide as "100%" from the start, so the tag does not grow, and push its neighbours along, as the count gains a digit. */}

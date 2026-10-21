@@ -1,3 +1,5 @@
+"use client"
+
 import * as React from "react"
 import { ChevronRight } from "lucide-react"
 
@@ -66,7 +68,7 @@ function StepRow({ step, labels }: { step: Step; labels?: Partial<StepLabels> })
         aria-expanded={canOpen ? open : undefined}
         disabled={!canOpen}
         onClick={() => setOpen((value) => !value)}
-        className={cn(lineClass, step.status === "running" && "animate-pulse")}
+        className={cn(lineClass, step.status === "running" && "animate-pulse motion-reduce:animate-none")}
       >
         <span className="truncate text-[12.5px]">{step.label}</span>
         {step.patch && <DiffStats {...patchStats(step.patch)} />}
